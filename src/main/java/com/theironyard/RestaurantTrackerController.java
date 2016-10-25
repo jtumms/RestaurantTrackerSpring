@@ -19,25 +19,30 @@ import java.util.List;
 public class RestaurantTrackerController {
     @Autowired
     UserRepository users;
+    @Autowired
     RestaurantRepository restaurants;
 
     @RequestMapping(path = "/", method = RequestMethod.GET)
     public String home(HttpSession session, Model model, String search) {
         String username = (String) session.getAttribute("username");
-        if (username == null); {
-            return "login";
-        }
-
         User user = users.findByName(username);
-        Iterable<Restaurant> rests;
+        List<Restaurant> rests;
+        if (user == null) {
+            return "redirect:/login";
+        }
         if (search != null) {
             rests = restaurants.searchLocation(search);
+
         }
         else {
             rests = restaurants.findByUser(user);
         }
         model.addAttribute("restaurants", rests);
         return "home";
+    }
+    @RequestMapping(path = "/login", method = RequestMethod.GET)
+    public String getLogin(Model model){
+        return "login";
     }
 
     @RequestMapping(path = "/login", method = RequestMethod.POST)
@@ -47,7 +52,7 @@ public class RestaurantTrackerController {
             user = new User(username, PasswordStorage.createHash(password));
             users.save(user);
         }
-        else if (PasswordStorage.verifyPassword(password, user.password)) {
+        else if (!PasswordStorage.verifyPassword(password, user.password)) {
             throw new Exception("Wrong password!");
         }
         session.setAttribute("username", username);
@@ -55,13 +60,15 @@ public class RestaurantTrackerController {
     }
 
     @RequestMapping(path = "/logout", method = RequestMethod.POST)
-    public String logout(HttpSession session) {
+    public String logout(HttpSession session, User user) {
+        session.invalidate();
+        user = null;
         return "redirect:/";
     }
 
     @RequestMapping(path = "/create-restaurant", method = RequestMethod.POST)
     public String create(HttpSession session, String name, String location, int rating, String comment) throws Exception {
-        String username = (String) session.getAttribute("name");
+        String username = (String) session.getAttribute("username");
         if (username == null) {
             throw new Exception("Not logged in.");
         }

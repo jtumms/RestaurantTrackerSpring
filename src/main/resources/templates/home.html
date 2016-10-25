@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Restaruant Tracker</title>
+    <title>Restaurant Tracker</title>
 </head>
 <body>
-<form action="/logout" method="get">
+<form action="/logout" method="post">
     <button type="submit">Logout</button>
 </form>
 <br>
@@ -17,7 +17,7 @@
 
 <form action="/create-restaurant" method="post">
     <input type="text" name="name" placeholder="Name"/>
-    <input type="text" name="loc" placeholder="Location"/>
+    <input type="text" name="location" placeholder="Location"/>
     <select name="rating">
         <option value="1">1</option>
         <option value="2">2</option>
